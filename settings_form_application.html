@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Application</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: 'var(--color-brand-50, #eff6ff)',
+                            100: 'var(--color-brand-100, #dbeafe)',
+                            500: 'var(--color-brand-500, #3b82f6)',
+                            600: 'var(--color-brand-600, #2563eb)',
+                            700: 'var(--color-brand-700, #1d4ed8)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        /* Smooth tab transition styling */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Accent Color CSS Variables */
+        :root {
+            --color-brand-50: #eff6ff;
+            --color-brand-100: #dbeafe;
+            --color-brand-500: #3b82f6;
+            --color-brand-600: #2563eb;
+            --color-brand-700: #1d4ed8;
+        }
+        [data-accent="purple"] {
+            --color-brand-50: #faf5ff;
+            --color-brand-100: #f3e8ff;
+            --color-brand-500: #a855f7;
+            --color-brand-600: #9333ea;
+            --color-brand-700: #7e22ce;
+        }
+        [data-accent="emerald"] {
+            --color-brand-50: #ecfdf5;
+            --color-brand-100: #d1fae5;
+            --color-brand-500: #10b981;
+            --color-brand-600: #059669;
+            --color-brand-700: #047857;
+        }
+        [data-accent="rose"] {
+            --color-brand-50: #fff1f2;
+            --color-brand-100: #ffe4e6;
+            --color-brand-500: #f43f5e;
+            --color-brand-600: #e11d48;
+            --color-brand-700: #be123c;
+        }
+        [data-accent="amber"] {
+            --color-brand-50: #fffbeb;
+            --color-brand-100: #fef3c7;
+            --color-brand-500: #f59e0b;
+            --color-brand-600: #d97706;
+            --color-brand-700: #b45309;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-sliders text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">Settings</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Manage your preference settings & account options</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Quick Dark Mode Switcher -->
+            <button id="quick-theme-toggle" title="Toggle theme" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i class="fa-solid fa-moon dark:hidden text-slate-600"></i>
+                <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+            </button>
+            
+            <!-- User Quick Menu -->
+            <div class="flex items-center space-x-3 pl-3 border-l border-slate-200 dark:border-slate-800">
+                <img id="header-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" alt="Avatar" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-500/30">
+                <div class="hidden md:block text-left">
+                    <div id="header-user-name" class="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Jane Doe</div>
+                    <div class="text-xs text-slate-400">Pro Plan</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 gap-8">
+
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 transition-transform transform -translate-x-full md:relative md:translate-x-0 md:bg-transparent md:border-0 md:p-0 flex flex-col justify-between shrink-0">
+            <div class="space-y-6">
+                <!-- Mobile Overlay Backdrop -->
+                <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm md:hidden hidden z-30"></div>
+
+                <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Preferences
+                </div>
+
+                <nav class="space-y-1" id="nav-tabs">
+                    <button data-tab="tab-profile" class="nav-btn active flex items-center w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
+                        <i class="fa-regular fa-user w-6 text-base mr-2"></i> Profile Settings
+                    </button>
+                    <button data-tab="tab-account" class="nav-btn flex items-center w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
+                        <i class="fa-solid fa-shield-halved w-6 text-base mr-2"></i> Account & Security
+                    </button>
+                    <button data-tab="tab-notifications" class="nav-btn flex items-center w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
+                        <i class="fa-regular fa-bell w-6 text-base mr-2"></i> Notifications
+                    </button>
+                    <button data-tab="tab-appearance" class="nav-btn flex items-center w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
+                        <i class="fa-solid fa-palette w-6 text-base mr-2"></i> Appearance & Theme
+                    </button>
+                    <button data-tab="tab-privacy" class="nav-btn flex items-center w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
+                        <i class="fa-solid fa-lock w-6 text-base mr-2"></i> Privacy & Data
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Storage Indicator Badge -->
+            <div class="mt-8 p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">
+                    <span>Cloud Storage</span>
+                    <span>7.5 GB / 10 GB</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-brand-500 h-full rounded-full" style="width: 75%"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0">
+            <form id="settings-form" class="space-y-6">
+                
+                <!-- TAB 1: Profile Settings -->
+                <section id="tab-profile" class="tab-content active bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+                    <div class="border-b border-slate-200 dark:border-slate-700/60 pb-5 mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Profile Information</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Update your public profile pictures and basic details.</p>
+                    </div>
+
+                    <!-- Profile Photo Picker -->
+                    <div class="mb-8 flex flex-col sm:flex-row items-center gap-6">
+                        <div class="relative group">
+                            <img id="avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" alt="Avatar" class="w-24 h-24 rounded-2xl object-cover ring-4 ring-slate-100 dark:ring-slate-700 shadow-md">
+                            <label for="avatar-input" class="absolute -bottom-2 -right-2 bg-brand-600 hover:bg-brand-700 text-white p-2.5 rounded-xl shadow-lg cursor-pointer transition transform group-hover:scale-105">
+                                <i class="fa-solid fa-camera text-xs"></i>
+                                <input type="file" id="avatar-input" accept="image/*" class="hidden">
+                            </label>
+                        </div>
+                        <div class="text-center sm:text-left space-y-1">
+                            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Profile Picture</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">JPG, GIF or PNG. Max size of 2MB.</p>
+                            <div class="flex justify-center sm:justify-start gap-2 pt-1">
+                                <button type="button" onclick="document.getElementById('avatar-input').click()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">Upload New</button>
+                                <button type="button" id="remove-avatar-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="first-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">First Name</label>
+                            <input type="text" id="first-name" name="firstName" value="Jane" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm">
+                        </div>
+                        <div>
+                            <label for="last-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Last Name</label>
+                            <input type="text" id="last-name" name="lastName" value="Doe" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="headline" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Headline / Job Title</label>
+                            <input type="text" id="headline" name="headline" value="Senior Product Designer & Frontend Developer" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="bio" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Bio</label>
+                            <textarea id="bio" name="bio" rows="4" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm resize-none" placeholder="Write a short bio about yourself...">Passionate UI/UX designer crafting intuitive digital experiences and high-performance frontend interfaces.</textarea>
+                            <span class="text-xs text-slate-400 mt-1 block text-right">Brief description for your public profile.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tab-account" class="tab-content bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+                    <div class="border-b border-slate-200 dark:border-slate-700/60 pb-5 mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Account & Security</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Manage your account credentials, email, and authentication setup.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Email Address</label>
+                                <input type="email" id="email" name="email" value="jane.doe@example.com" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="+1 (555) 234-5678" class="form-input w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Change Password Block -->
+                        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 space-y-4">
+                            <h3 class="font-semibold text-slate-800 dark:text-slate-200 text-sm">Change Password</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="sm:col-span-2">
+                                    <input type="password" id="current-password" placeholder="Current Password" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                                <div>
+                                    <input type="password" id="new-password" placeholder="New Password" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                                <div>
+                                    <input type="password" id="confirm-password" placeholder="Confirm New Password" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Password Strength Bar -->
+                            <div>
+                                <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+                                    <span>Password Strength</span>
+                                    <span id="strength-label" class="font-medium text-slate-400">None</span>
+                                </div>
+                                <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden flex">
+                                    <div id="strength-bar-1" class="h-full w-1/4 bg-transparent border-r border-white dark:border-slate-800 transition-colors"></div>
+                                    <div id="strength-bar-2" class="h-full w-1/4 bg-transparent border-r border-white dark:border-slate-800 transition-colors"></div>
+                                    <div id="strength-bar-3" class="h-full w-1/4 bg-transparent border-r border-white dark:border-slate-800 transition-colors"></div>
+                                    <div id="strength-bar-4" class="h-full w-1/4 bg-transparent transition-colors"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2FA Section -->
+                        <div class="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                            <div class="space-y-0.5">
+                                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">Two-Factor Authentication (2FA)</span>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Add an extra layer of security using an authenticator app.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="two-factor" name="twoFactor" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tab-notifications" class="tab-content bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+                    <div class="border-b border-slate-200 dark:border-slate-700/60 pb-5 mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Notification Preferences</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Choose how and when you want to be notified.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Channels</h3>
+                            
+                            <!-- Toggle 1 -->
+                            <div class="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400"><i class="fa-regular fa-envelope"></i></div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Email Notifications</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">Receive weekly summaries, updates, and reports.</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="notifyEmail" class="form-input sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle 2 -->
+                            <div class="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-purple-100 text-purple-600 rounded-lg dark:bg-purple-900/30 dark:text-purple-400"><i class="fa-regular fa-bell"></i></div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Push Notifications</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">Get real-time browser notifications for urgent activity.</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="notifyPush" class="form-input sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle 3 -->
+                            <div class="flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400"><i class="fa-solid fa-mobile-screen"></i></div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">SMS Alerts</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">Receive security alerts and login attempt notices.</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="notifySMS" class="form-input sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tab-appearance" class="tab-content bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+                    <div class="border-b border-slate-200 dark:border-slate-700/60 pb-5 mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Appearance & Theme</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Customize the visual theme and visual accent style of your dashboard.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Theme Selection Cards -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Theme Mode</label>
+                            <div class="grid grid-cols-3 gap-4">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="themeMode" value="light" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-brand-500 peer-checked:bg-brand-50/20 text-center hover:bg-slate-50 dark:hover:bg-slate-900/40 transition">
+                                        <i class="fa-regular fa-sun text-xl text-amber-500 mb-2"></i>
+                                        <div class="text-xs font-semibold">Light</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="themeMode" value="dark" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-brand-500 peer-checked:bg-brand-50/20 text-center hover:bg-slate-50 dark:hover:bg-slate-900/40 transition">
+                                        <i class="fa-regular fa-moon text-xl text-indigo-400 mb-2"></i>
+                                        <div class="text-xs font-semibold">Dark</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="themeMode" value="system" class="peer sr-only" checked>
+                                    <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-brand-500 peer-checked:bg-brand-50/20 text-center hover:bg-slate-50 dark:hover:bg-slate-900/40 transition">
+                                        <i class="fa-solid fa-desktop text-xl text-slate-400 mb-2"></i>
+                                        <div class="text-xs font-semibold">System</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Accent Color Picker -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Accent Color</label>
+                            <div class="flex items-center gap-4">
+                                <button type="button" data-color="blue" class="accent-picker w-8 h-8 rounded-full bg-blue-600 ring-2 ring-offset-2 ring-blue-600 dark:ring-offset-slate-800 transition transform hover:scale-110"></button>
+                                <button type="button" data-color="purple" class="accent-picker w-8 h-8 rounded-full bg-purple-600 transition transform hover:scale-110"></button>
+                                <button type="button" data-color="emerald" class="accent-picker w-8 h-8 rounded-full bg-emerald-600 transition transform hover:scale-110"></button>
+                                <button type="button" data-color="rose" class="accent-picker w-8 h-8 rounded-full bg-rose-600 transition transform hover:scale-110"></button>
+                                <button type="button" data-color="amber" class="accent-picker w-8 h-8 rounded-full bg-amber-600 transition transform hover:scale-110"></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tab-privacy" class="tab-content bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+                    <div class="border-b border-slate-200 dark:border-slate-700/60 pb-5 mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Privacy & Export</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Control data privacy options and account export/deletion.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                            <div>
+                                <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Public Visibility</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">Allow search engines to index your profile page.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="publicVisibility" class="form-input sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-brand-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- Data Export Block -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Export Personal Data</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Download a complete copy of all your profile data in JSON format.</p>
+                            </div>
+                            <button type="button" id="export-data-btn" class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                                <i class="fa-solid fa-download mr-1.5"></i> Export
+                            </button>
+                        </div>
+
+                        <!-- Danger Zone -->
+                        <div class="p-4 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20 space-y-3">
+                            <h4 class="text-sm font-bold text-rose-600 dark:text-rose-400">Danger Zone</h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button type="button" id="delete-account-btn" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </main>
+    </div>
+
+    <!-- Floating Dirty Form Action Bar -->
+    <div id="dirty-bar" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center justify-between gap-6 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none w-11/12 max-w-xl">
+        <div class="flex items-center space-x-2.5 text-sm font-medium">
+            <i class="fa-solid fa-circle-exclamation text-amber-400"></i>
+            <span>You have unsaved changes!</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button type="button" id="reset-form-btn" class="text-xs text-slate-300 hover:text-white font-medium px-3 py-1.5 rounded-lg hover:bg-slate-800 transition">Discard</button>
+            <button type="button" id="save-form-btn" class="text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl shadow-md transition">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+
+    <!-- Delete Modal Confirmation -->
+    <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4 transform scale-95 transition-transform duration-200">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Delete Account?</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">This action cannot be undone. All your personal data and configuration settings will be erased permanently.</p>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="button" id="cancel-delete-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition">Cancel</button>
+                <button type="button" id="confirm-delete-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white transition">Confirm Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // App State
+            let initialFormData = {};
+            let isDirty = false;
+
+            // DOM Elements
+            const form = document.getElementById('settings-form');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const dirtyBar = document.getElementById('dirty-bar');
+            const saveBtn = document.getElementById('save-form-btn');
+            const resetBtn = document.getElementById('reset-form-btn');
+            const quickThemeToggle = document.getElementById('quick-theme-toggle');
+            const themeRadios = document.querySelectorAll('input[name="themeMode"]');
+            const avatarInput = document.getElementById('avatar-input');
+            const avatarPreview = document.getElementById('avatar-preview');
+            const headerAvatar = document.getElementById('header-avatar');
+            const newPasswordInput = document.getElementById('new-password');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            const deleteAccountBtn = document.getElementById('delete-account-btn');
+            const deleteModal = document.getElementById('delete-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const exportDataBtn = document.getElementById('export-data-btn');
+
+            // --- TAB SWITCHING ---
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+
+                    navBtns.forEach(b => b.classList.remove('active', 'bg-slate-100', 'dark:bg-slate-800', 'text-brand-600', 'dark:text-brand-400', 'font-semibold'));
+                    btn.classList.add('active', 'bg-slate-100', 'dark:bg-slate-800', 'text-brand-600', 'dark:text-brand-400', 'font-semibold');
+
+                    tabContents.forEach(content => {
+                        if (content.id === targetTab) {
+                            content.classList.add('active');
+                        } else {
+                            content.classList.remove('active');
+                        }
+                    });
+
+                    // Close mobile menu on tab selection
+                    closeMobileSidebar();
+                });
+            });
+
+            // Set active navigation initial style
+            document.querySelector('.nav-btn.active').classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-brand-600', 'dark:text-brand-400', 'font-semibold');
+
+            // --- MOBILE SIDEBAR ---
+            function openMobileSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarBackdrop.classList.remove('hidden');
+            }
+
+            function closeMobileSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarBackdrop.classList.add('hidden');
+            }
+
+            mobileMenuToggle.addEventListener('click', openMobileSidebar);
+            sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+            // --- DIRTY FORM DETECTION ---
+            function captureFormData() {
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, val] of formData.entries()) {
+                    data[key] = val;
+                }
+                return JSON.stringify(data);
+            }
+
+            function checkDirtyState() {
+                const currentData = captureFormData();
+                isDirty = (currentData !== initialFormData);
+                if (isDirty) {
+                    dirtyBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+                } else {
+                    dirtyBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                }
+            }
+
+            initialFormData = captureFormData();
+            form.addEventListener('input', checkDirtyState);
+            form.addEventListener('change', checkDirtyState);
+
+            resetBtn.addEventListener('click', () => {
+                form.reset();
+                checkDirtyState();
+                showToast('Changes discarded', 'info');
+            });
+
+            saveBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                initialFormData = captureFormData();
+                checkDirtyState();
+                
+                // Update live header user name
+                const firstName = document.getElementById('first-name').value;
+                const lastName = document.getElementById('last-name').value;
+                document.getElementById('header-user-name').textContent = `${firstName} ${lastName}`;
+
+                showToast('Settings saved successfully!', 'success');
+            });
+
+            // --- PROFILE PHOTO PREVIEW ---
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        avatarPreview.src = event.target.result;
+                        headerAvatar.src = event.target.result;
+                        showToast('Avatar updated', 'info');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('remove-avatar-btn').addEventListener('click', () => {
+                const fallback = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                avatarPreview.src = fallback;
+                headerAvatar.src = fallback;
+                showToast('Avatar reset to default', 'info');
+            });
+
+            // --- PASSWORD STRENGTH INDICATOR ---
+            newPasswordInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                let score = 0;
+
+                if (val.length > 6) score++;
+                if (val.match(/[A-Z]/)) score++;
+                if (val.match(/[0-9]/)) score++;
+                if (val.match(/[^A-Za-z0-9]/)) score++;
+
+                const bars = [
+                    document.getElementById('strength-bar-1'),
+                    document.getElementById('strength-bar-2'),
+                    document.getElementById('strength-bar-3'),
+                    document.getElementById('strength-bar-4')
+                ];
+                const label = document.getElementById('strength-label');
+
+                bars.forEach(bar => bar.className = 'h-full w-1/4 bg-transparent transition-colors');
+
+                const colors = ['bg-rose-500', 'bg-amber-500', 'bg-blue-500', 'bg-emerald-500'];
+                const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+
+                if (val.length === 0) {
+                    label.textContent = 'None';
+                    label.className = 'font-medium text-slate-400';
+                    return;
+                }
+
+                for (let i = 0; i < score; i++) {
+                    bars[i].classList.add(colors[score - 1]);
+                }
+
+                label.textContent = labels[score - 1] || 'Weak';
+                label.className = `font-semibold ${score === 4 ? 'text-emerald-500' : score === 3 ? 'text-blue-500' : score === 2 ? 'text-amber-500' : 'text-rose-500'}`;
+            });
+
+            // --- THEME CUSTOMIZATION ---
+            function setTheme(mode) {
+                if (mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+
+            themeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => setTheme(e.target.value));
+            });
+
+            quickThemeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                const matchingRadio = document.querySelector(`input[name="themeMode"][value="${isDark ? 'dark' : 'light'}"]`);
+                if (matchingRadio) matchingRadio.checked = true;
+            });
+
+            // --- ACCENT COLOR PICKER ---
+            const accentPickers = document.querySelectorAll('.accent-picker');
+            accentPickers.forEach(picker => {
+                picker.addEventListener('click', () => {
+                    const color = picker.getAttribute('data-color');
+                    document.documentElement.setAttribute('data-accent', color);
+
+                    accentPickers.forEach(p => p.classList.remove('ring-2', 'ring-offset-2', 'ring-slate-400', 'dark:ring-offset-slate-800'));
+                    picker.classList.add('ring-2', 'ring-offset-2', 'ring-slate-400', 'dark:ring-offset-slate-800');
+
+                    showToast(`Accent color changed to ${color}`, 'info');
+                });
+            });
+
+            // --- DELETE ACCOUNT MODAL ---
+            deleteAccountBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('opacity-0', 'pointer-events-none');
+                deleteModal.firstElementChild.classList.remove('scale-95');
+                deleteModal.firstElementChild.classList.add('scale-100');
+            });
+
+            function closeModal() {
+                deleteModal.classList.add('opacity-0', 'pointer-events-none');
+                deleteModal.firstElementChild.classList.remove('scale-100');
+                deleteModal.firstElementChild.classList.add('scale-95');
+            }
+
+            cancelDeleteBtn.addEventListener('click', closeModal);
+
+            confirmDeleteBtn.addEventListener('click', () => {
+                closeModal();
+                showToast('Account successfully deleted', 'error');
+            });
+
+            // --- DATA EXPORT ---
+            exportDataBtn.addEventListener('click', () => {
+                showToast('Data exported successfully!', 'success');
+            });
+
+            // --- TOAST NOTIFICATION SYSTEM ---
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+
+                const icons = {
+                    success: 'fa-circle-check text-emerald-500',
+                    error: 'fa-circle-xmark text-rose-500',
+                    info: 'fa-circle-info text-brand-500'
+                };
+
+                toast.className = 'pointer-events-auto flex items-center space-x-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-4 py-3 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 transition transform translate-y-4 opacity-0 text-sm font-medium';
+                toast.innerHTML = `
+                    <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
+                    <span>${message}</span>
+                `;
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-4', 'opacity-0');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.add('translate-y-4', 'opacity-0');
+                    setTimeout(() => toast.remove(), 200);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
